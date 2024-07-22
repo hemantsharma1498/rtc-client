@@ -1,21 +1,25 @@
 import React from 'react';
 
-const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputChange, onSendMessage }) => {
-  const activeUsers = Object.values(connectionDetails).filter(
-    (details) => details.organisation === activeChat.organisation
-  );
+const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputChange, onSendMessage, activeUsers, onUserClick }) => {
+  // Filter out the current user from the list of active users
+  const filteredActiveUsers = activeUsers.filter(user => user.email !== activeChat.email);
+
+  // Create the list of active users with unique keys and click handling
+  const activeUserList = filteredActiveUsers.map(user => (
+    <li key={user.Email} onClick={() => onUserClick(user.Email, user.Name)}>
+      {user.Name}
+    </li>
+  ));
 
   return (
     <div className="chat-section">
       <header className="App-header">
-        <h1>{activeChat.organisation}</h1>
+        <h1>{activeChat.organisation.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/^\w/, c => c.toUpperCase())}</h1>
       </header>
       <div className="active-users">
         <h2>Active Users</h2>
         <ul>
-          {activeUsers.map((user) => (
-            <li key={user.email}>{user.name}</li>
-          ))}
+          {activeUserList}
         </ul>
       </div>
       <div className="chat-window">
@@ -33,7 +37,7 @@ const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputCh
           onChange={(e) => onInputChange(e.target.value)}
           placeholder="Type a message..."
         />
-        <button onClick={onSendMessage}>Send</button>
+        <button onClick={() => onSendMessage(activeChat.channel, activeChat.receiver)}>Send</button>
       </div>
     </div>
   );
