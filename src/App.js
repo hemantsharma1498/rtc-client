@@ -57,7 +57,7 @@ const App = () => {
           .then(response => response.json())
           .then(data => {
             // Filter out the current user based on their email
-            const filteredUsers = data.filter(user => user.Email !== email);
+            const filteredUsers = data.filter(user => user.email !== email);
             setActiveUsers(filteredUsers);
           })
           .catch(error => console.error('Error fetching active connections:', error));
@@ -92,35 +92,6 @@ const App = () => {
     };
   };
 
-  const sendMessage = (channelId, receiver) => {
-    const payload = input.trim();
-    if (!payload) return;
-
-    const message = {
-      payload,
-      org: selectedOrg,
-      channel: channelId,
-      sender: email,
-      receiver,
-      createdAt: new Date().toISOString(),
-    };
-
-    fetch('http://localhost:3030/save-message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(message),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Message sent:', data);
-        setMessages((prevMessages) => [...prevMessages, { text: payload }]);
-        setInput('');
-      })
-      .catch(error => console.error('Error sending message:', error));
-  };
-
   const handleUserClick = (receiverEmail, receiverName) => {
     const body = {
       Organisation: selectedOrg,
@@ -139,9 +110,41 @@ const App = () => {
       .then(data => {
         const channelId = data.channelId;
         console.log('Channel created:', channelId);
-        sendMessage(channelId, receiverEmail);
+        setActiveChat(prevChat => ({ ...prevChat, channelId, receiver: receiverEmail }));
       })
       .catch(error => console.error('Error creating channel:', error));
+  };
+
+  const sendMessage = () => {
+    const { channelId, receiver } = activeChat;
+    const payload = input.trim();
+    if (!payload || !channelId || !receiver) return;
+
+    const message = {
+      payload,
+      org: selectedOrg,
+      channel: channelId,
+      sender: email,
+      receiver,
+      createdAt: Date.now(), // Epoch timestamp in milliseconds
+    };
+
+    fetch('http://localhost:3030/save-message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        console.log('Message sent successfully');
+        setMessages((prevMessages) => [...prevMessages, { text: payload }]);
+        setInput('');
+      })
+      .catch(error => console.error('Error sending message:', error));
   };
 
   if (activeChat) {

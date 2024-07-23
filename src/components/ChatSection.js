@@ -6,7 +6,7 @@ const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputCh
 
   // Create the list of active users with unique keys and click handling
   const activeUserList = filteredActiveUsers.map(user => (
-    <li key={user.Email} onClick={() => onUserClick(user.Email, user.Name)}>
+    <li key={user.email} onClick={() => onUserClick(user.Email, user.Name)}>
       {user.Name}
     </li>
   ));
@@ -37,7 +37,7 @@ const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputCh
           onChange={(e) => onInputChange(e.target.value)}
           placeholder="Type a message..."
         />
-        <button onClick={() => onSendMessage(activeChat.channel, activeChat.receiver)}>Send</button>
+        <button onClick={onSendMessage}>Send</button>
       </div>
     </div>
   );
