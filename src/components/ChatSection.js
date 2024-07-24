@@ -1,12 +1,15 @@
 import React from 'react';
 
 const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputChange, onSendMessage, activeUsers, onUserClick }) => {
-  // Filter out the current user from the list of active users
-  const filteredActiveUsers = activeUsers.filter(user => user.email !== activeChat.email);
+  const filteredActiveUsers = activeUsers.filter(user => user.Email !== activeChat.email);
 
-  // Create the list of active users with unique keys and click handling
   const activeUserList = filteredActiveUsers.map(user => (
-    <li key={user.email} onClick={() => onUserClick(user.Email, user.Name)}>
+    <li
+      key={user.Email}
+      onClick={() => onUserClick(user.Email, user.Name)}
+      className={activeChat.receiver === user.Email ? 'active-user' : ''}
+      style={{ cursor: 'pointer' }}
+    >
       {user.Name}
     </li>
   ));
@@ -14,7 +17,7 @@ const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputCh
   return (
     <div className="chat-section">
       <header className="App-header">
-        <h1>{activeChat.organisation.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/^\w/, c => c.toUpperCase())}</h1>
+        <h1>Chat with {activeChat.name}</h1>
       </header>
       <div className="active-users">
         <h2>Active Users</h2>
@@ -23,10 +26,9 @@ const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputCh
         </ul>
       </div>
       <div className="chat-window">
-        <h2>Chat</h2>
         {messages.map((msg, index) => (
           <div key={index} className="chat-message">
-            {msg.text}
+            {msg.sender} - {msg.payload}
           </div>
         ))}
       </div>
@@ -37,7 +39,7 @@ const ChatSection = ({ activeChat, connectionDetails, messages, input, onInputCh
           onChange={(e) => onInputChange(e.target.value)}
           placeholder="Type a message..."
         />
-        <button onClick={onSendMessage}>Send</button>
+        <button onClick={onSendMessage} style={{ cursor: 'pointer' }}>Send</button>
       </div>
     </div>
   );
